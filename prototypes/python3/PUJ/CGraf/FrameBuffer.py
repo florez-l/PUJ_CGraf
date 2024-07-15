@@ -10,7 +10,7 @@ class FrameBuffer:
 
   '''
   '''
-  def __init__( self, dims = ( 256, 256 ), color_deep = 'RGB' ):
+  def __init__( self, dims = ( 512, 512 ), color_deep = 'RGB' ):
     deep = color_deep.upper( )
     if deep in [ 'BINARY', 'GRAY' ]:
       self.m_ColorDeep = deep
@@ -46,10 +46,28 @@ class FrameBuffer:
 
   '''
   '''
+  def __iadd__( self, other ):
+    for i in range( len( self.m_Buffer ) ):
+      self.m_Buffer[ i ] += other.m_Buffer[ i ]
+    # end for
+    return self
+  # end def
+
+  '''
+  '''
   def __sub__( self, other ):
     r = FrameBuffer( dims = self.m_Dims, color_deep = self.m_ColorDeep )
     r.m_Buffer = [ a - b for a, b in zip( self.m_Buffer, other.m_Buffer ) ]
     return r
+  # end def
+
+  '''
+  '''
+  def __isub__( self, other ):
+    for i in range( len( self.m_Buffer ) ):
+      self.m_Buffer[ i ] -= other.m_Buffer[ i ]
+    # end for
+    return self
   # end def
 
   '''
@@ -62,9 +80,28 @@ class FrameBuffer:
 
   '''
   '''
+  def __imul__( self, coeff ):
+    for i in range( len( self.m_Buffer ) ):
+      self.m_Buffer[ i ] *= coeff
+    # end for
+    return self
+  # end def
+
+  '''
+  '''
   def cast( self ):
+    max_v = 255
+    if self.m_ColorDeep == 'BINARY':
+      max_v = 1
+    # end if
     for i in range( len( self.m_Buffer ) ):
       self.m_Buffer[ i ] = int( self.m_Buffer[ i ] )
+      if self.m_Buffer[ i ] < 0:
+        self.m_Buffer[ i ] = 0
+      # end if
+      if self.m_Buffer[ i ] > max_v:
+        self.m_Buffer[ i ] = max_v
+      # end if
     # end for
   # end def
 
@@ -114,7 +151,7 @@ class FrameBuffer:
     real_ifs = open( real_fname, 'w' )
     real_ifs.write( s )
     real_ifs.close( )
-    
+
   # end def
 
   '''
