@@ -148,16 +148,49 @@ class FrameBuffer:
     real_fname = os.path.join( dir_name, base_name + ext_name )
 
     # Real save
-    real_ifs = open( real_fname, 'w' )
-    real_ifs.write( s )
-    real_ifs.close( )
+    real_ofs = open( real_fname, 'w' )
+    real_ofs.write( s )
+    real_ofs.close( )
 
   # end def
 
   '''
   '''
   def load_from_netpbm( self, fname ):
-    pass
+
+    # Load file
+    real_ifs = open( fname, 'r' )
+    lines = real_ifs.readlines( )
+    real_ifs.close( )
+    real_lines = []
+    for line in lines:
+      if line[ 0 ] != '#' and line.strip( ) != '':
+        real_lines += [ line.strip( ) ]
+      # end if
+    # end for
+
+    mn = real_lines[ 0 ]
+    dims = [ int( v ) for v in real_lines[ 1 ].split( ) ]
+    max_v = 255
+    if mn == 'P1':
+      self.m_ColorDeep = 'BINARY'
+      self.m_Dims = ( dims[ 0 ], dims[ 1 ], 1 )
+      max_v = 1
+    elif mn == 'P2':
+      self.m_ColorDeep = 'GRAY'
+      self.m_Dims = ( dims[ 0 ], dims[ 1 ], 1 )
+    else:
+      self.m_ColorDeep = 'RGB'
+      self.m_Dims = ( dims[ 0 ], dims[ 1 ], 3 )
+    # end if
+    max_v /= float( real_lines[ 2 ] )
+
+    self.m_Buffer = []
+    for line in lines[ 3 : ]:
+      for v in line.split( ):
+        self.m_Buffer += [ int( float( v ) * max_v ) ]
+      # end for
+    # end for
   # end def
 
 # end class

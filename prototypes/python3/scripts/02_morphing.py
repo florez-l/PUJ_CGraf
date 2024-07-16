@@ -6,16 +6,17 @@ import math, sys
 sys.path.append( '..' )
 import PUJ.CGraf
 
-size = ( 100, 100 )
-color_depth = 'rgb'
-total_time = 15
+total_time = 5
 fps = 24
 
 total_frames = fps * total_time
 pad = int( math.ceil( math.log10( total_frames ) ) )
 
-start = PUJ.CGraf.FrameBuffer( size, color_depth )
-diff  = PUJ.CGraf.FrameBuffer( size, color_depth ) - start
+start = PUJ.CGraf.FrameBuffer( )
+diff  = PUJ.CGraf.FrameBuffer( )
+start.load_from_netpbm( sys.argv[ 1 ] )
+diff.load_from_netpbm( sys.argv[ 2 ] )
+diff -= start
 
 for frame_id in range( total_frames ):
   t = frame_id / ( total_frames - 1 )
