@@ -89,25 +89,30 @@ class FrameBuffer:
 
   '''
   '''
-  def cast( self ):
-    max_v = 255
-    if self.m_ColorDeep == 'BINARY':
-      max_v = 1
-    # end if
+  def __truediv__( self, coeff ):
+    r = FrameBuffer( dims = self.m_Dims, color_deep = self.m_ColorDeep )
+    r.m_Buffer = [ a / coeff for a in self.m_Buffer ]
+    return r
+  # end def
+
+  '''
+  '''
+  def __itruediv__( self, coeff ):
     for i in range( len( self.m_Buffer ) ):
-      self.m_Buffer[ i ] = int( self.m_Buffer[ i ] )
-      if self.m_Buffer[ i ] < 0:
-        self.m_Buffer[ i ] = 0
-      # end if
-      if self.m_Buffer[ i ] > max_v:
-        self.m_Buffer[ i ] = max_v
-      # end if
+      self.m_Buffer[ i ] /= coeff
     # end for
+    return self
   # end def
 
   '''
   '''
   def save_as_netpbm( self, fname ):
+
+    # Value range
+    max_v = 255
+    if self.m_ColorDeep == 'BINARY':
+      max_v = 1
+    # end if
 
     # Create file contents
     s = ''
@@ -131,7 +136,16 @@ class FrameBuffer:
       if i % nl == 0:
         end_c = '\n'
       # end if
-      s += str( self.m_Buffer[ i ] ) + end_c
+
+      v = self.m_Buffer[ i ]
+      if v < 0:
+        v = 0
+      # end if
+      if v > max_v:
+        v = max_v
+      # end if
+
+      s += str( int( v ) ) + end_c
     # end for
 
     # Build a coherent filename
