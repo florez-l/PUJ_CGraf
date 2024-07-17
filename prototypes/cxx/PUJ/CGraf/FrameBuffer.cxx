@@ -260,51 +260,92 @@ save_as_netpbm( const std::string& fname )
   real_ofs.close( );
 
   return( true );
-
 }
+
+
+
+
+
+
+#include <iostream>
 
 // -------------------------------------------------------------------------
 bool PUJ::CGraf::FrameBuffer::
 load_from_netpbm( const std::string& fname )
 {
-  /* TODO
-    # Load file
-    real_ifs = open( fname, "r" )
-    lines = real_ifs.readlines( )
-    real_ifs.close( )
-    real_lines = []
-    for line in lines:
-      if line[ 0 ] != "#" and line.strip( ) != "":
-        real_lines << [ line.strip( ) ]
-      # end if
-    # end for
+  // Load buffer
+  std::ifstream ifs( fname.c_str( ) );
+  if( !ifs )
+    return( false );
+  ifs.seekg( 0, std::ios::end );
+  std::size_t size = ifs.tellg( );
+  ifs.seekg( 0, std::ios::beg );
+  std::string buffer( size, 0 );
+  ifs.read( &buffer[ 0 ], size );
+  ifs.close( );
+  std::istringstream input( buffer );
 
-    mn = real_lines[ 0 ]
-    dims = [ int( v ) for v in real_lines[ 1 ].split( ) ]
-    max_v = 255
-    if mn == "P1":
-      this->m_ColorDeep = "BINARY"
-      this->m_Dims = ( dims[ 0 ], dims[ 1 ], 1 )
-      max_v = 1
-    elif mn == "P2":
-      this->m_ColorDeep = "GRAY"
-      this->m_Dims = ( dims[ 0 ], dims[ 1 ], 1 )
-    else:
-      this->m_ColorDeep = "RGB"
-      this->m_Dims = ( dims[ 0 ], dims[ 1 ], 3 )
-    # end if
-    max_v /= float( real_lines[ 2 ] )
+  // Read line by line
+  std::string line;
+  float max_v = 255;
+  unsigned long long n = 0;
+  float* buffer_it = nullptr;
+  while( std::getline( input, line ) )
+  {
+    if( line[ 0 ] != '#' )
+    {
+      if( n == 0 )
+      {
+        if( line == "P1" )
+        {
+          this->m_ColorDeep = Self::BINARY;
+          this->m_Dims[ 2 ] = 1;
+          max_v = 1;
+        }
+        else if( line == "P2" )
+        {
+          this->m_ColorDeep = Self::GRAY;
+          this->m_Dims[ 2 ] = 1;
+        }
+        else if( line == "P3" )
+        {
+          this->m_ColorDeep = Self::RGB;
+          this->m_Dims[ 2 ] = 3;
+        } // end if
+      }
+      else if( n == 1 )
+      {
+        std::istringstream dims( line );
+        dims >> this->m_Dims[ 0 ] >> this->m_Dims[ 1 ];
+      }
+      else if( n == 2 )
+      {
+        std::istringstream real_max_str( line );
+        float real_max;
+        real_max_str >> real_max;
+        max_v /= real_max;
 
-    this->m_Buffer = []
-    for line in lines[ 3 : ]:
-      for v in line.split( ):
-        this->m_Buffer += [ int( float( v ) * max_v ) ]
-      # end for
-    # end for
-  # end def
+        this->m_Size
+          = this->m_Dims[ 0 ] * this->m_Dims[ 1 ] * this->m_Dims[ 2 ];
+        if( this->m_Buffer != nullptr )
+          std::free( this->m_Buffer );
+        this->m_Buffer
+          = reinterpret_cast< float* >(
+            std::calloc( this->m_Size, sizeof( float ) )
+            );
+        buffer_it = this->m_Buffer;
+      }
+      else
+      {
+        std::istringstream line_str( line );
+        while( line_str.good( ) )
+          line_str >> *( buffer_it++ );
+        buffer_it--;
+      } // end if
+      n++;
+    } // end if
+  } // end while
 
-# end class
-  */
   return( true );
 }
 
