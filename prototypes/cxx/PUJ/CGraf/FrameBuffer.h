@@ -36,17 +36,17 @@ namespace PUJ
 
       void random_fill( );
 
-      Self& operator+( const Self& other ) const;
+      Self operator+( const Self& other ) const;
       Self& operator+=( const Self& other );
 
-      Self& operator-( const Self& other ) const;
+      Self operator-( const Self& other ) const;
       Self& operator-=( const Self& other );
 
-      Self& operator*( const Self& other ) const;
-      Self& operator*=( const Self& other );
+      Self operator*( const float& coeff ) const;
+      Self& operator*=( const float& coeff );
 
-      Self& operator/( const Self& other ) const;
-      Self& operator/=( const Self& other );
+      Self operator/( const float& coeff ) const;
+      Self& operator/=( const float& coeff );
 
       bool save_as_netpbm( const std::string& fname );
       bool load_from_netpbm( const std::string& fname );
@@ -54,7 +54,8 @@ namespace PUJ
     protected:
       ColorDeep      m_ColorDeep;
       unsigned short m_Dims[ 3 ];
-      unsigned char* m_Buffer { nullptr };
+      float*         m_Buffer { nullptr };
+      unsigned long long m_Size { 0 };
     };
   } // end namespace
 } // end namespace
