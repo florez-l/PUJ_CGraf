@@ -26,6 +26,14 @@ class FrameBuffer:
 
   '''
   '''
+  def clone( self, other ):
+    self.m_ColorDeep = other.m_ColorDeep
+    self.m_Dims = other.m_Dims
+    self.m_Buffer = [ v for v in other.m_Buffer ]
+  # end def
+
+  '''
+  '''
   def random_fill( self ):
     max_v = 255
     if self.m_ColorDeep == 'BINARY':

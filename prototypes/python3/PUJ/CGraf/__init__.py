@@ -3,5 +3,6 @@
 ## =========================================================================
 
 from .FrameBuffer import FrameBuffer
+from .Viewport import Viewport
 
 ## eof - $RCSfile$
