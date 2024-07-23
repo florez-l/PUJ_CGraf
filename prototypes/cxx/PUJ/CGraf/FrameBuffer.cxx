@@ -262,13 +262,6 @@ save_as_netpbm( const std::string& fname )
   return( true );
 }
 
-
-
-
-
-
-#include <iostream>
-
 // -------------------------------------------------------------------------
 bool PUJ::CGraf::FrameBuffer::
 load_from_netpbm( const std::string& fname )

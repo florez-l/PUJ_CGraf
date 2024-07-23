@@ -28,13 +28,15 @@ class Viewport( PUJ_CGraf_FrameBuffer ):
   '''
   '''
   def __getitem__( self, index ):
-    return self.m_Buffer[ ( index[ 1 ] * self.m_Dims[ 0 ] ) + index[ 0 ] ]
+    i = ( ( index[ 1 ] * self.m_Dims[ 0 ] ) + index[ 0 ] ) * self.m_Dims[ 2 ]
+    return self.m_Buffer[ i ]
   # end def
 
   '''
   '''
   def __setitem__( self, index, v ):
-    self.m_Buffer[ ( index[ 1 ] * self.m_Dims[ 0 ] ) + index[ 0 ] ] = v
+    i = ( ( index[ 1 ] * self.m_Dims[ 0 ] ) + index[ 0 ] ) * self.m_Dims[ 2 ]
+    self.m_Buffer[ i ] = v
   # end def
 
 # end class

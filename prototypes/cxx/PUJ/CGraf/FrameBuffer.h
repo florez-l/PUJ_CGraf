@@ -48,8 +48,8 @@ namespace PUJ
       Self operator/( const float& coeff ) const;
       Self& operator/=( const float& coeff );
 
-      bool save_as_netpbm( const std::string& fname );
-      bool load_from_netpbm( const std::string& fname );
+      virtual bool save_as_netpbm( const std::string& fname );
+      virtual bool load_from_netpbm( const std::string& fname );
 
     protected:
       ColorDeep      m_ColorDeep;

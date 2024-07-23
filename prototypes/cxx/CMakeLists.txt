@@ -38,6 +38,8 @@ set(
   _lib_src
   ${PROJECT_SOURCE_DIR}/PUJ/CGraf/FrameBuffer.cxx
   ${PROJECT_SOURCE_DIR}/PUJ/CGraf/FrameBuffer.h
+  ${PROJECT_SOURCE_DIR}/PUJ/CGraf/Viewport.h
+  ${PROJECT_SOURCE_DIR}/PUJ/CGraf/Viewport.cxx
   )
 add_library(PUJ_CGraf STATIC ${_lib_src})
 target_link_libraries(PUJ_CGraf stdc++fs)
@@ -47,6 +49,7 @@ set(
   _execs
   01_random_frame
   02_morphing_frames
+  03_game_of_life
   )
 foreach(_e ${_execs})
   add_executable(${_e} executables/${_e}.cxx)
