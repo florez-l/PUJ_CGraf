@@ -84,6 +84,13 @@ PUJ::CGraf::FrameBuffer::
 
 // -------------------------------------------------------------------------
 void PUJ::CGraf::FrameBuffer::
+clone( const Self& other )
+{
+  *this = other;
+}
+
+// -------------------------------------------------------------------------
+void PUJ::CGraf::FrameBuffer::
 random_fill( )
 {
   std::random_device dev;

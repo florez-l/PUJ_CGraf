@@ -78,13 +78,21 @@ class GameOfLife( PUJ.CGraf.Viewport ):
 
 ## ------------------------------ MAIN SCRIPT ------------------------------
 
+if len( sys.argv ) < 4:
+  print( 'Usage: python3 ' + sys.argv[ 0 ] + ' image.pbm length fps' )
+  sys.exit( 1 )
+# end if
+image_fname = sys.argv[ 1 ]
+length = float( sys.argv[ 2 ] )
+fps = int( sys.argv[ 3 ] )
+
 # Create boards
 gol = [ GameOfLife( ), GameOfLife( ) ]
-gol[ 0 ].load_from_netpbm( sys.argv[ 1 ] )
+gol[ 0 ].load_from_netpbm( image_fname )
 gol[ 1 ].clone( gol[ 0 ] )
 
 # Create frames
-total_frames = 1000 ## fps * total_time
+total_frames = int( fps * length )
 pad = int( math.ceil( math.log10( total_frames ) ) )
 for frame_id in range( total_frames ):
 

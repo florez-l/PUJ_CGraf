@@ -34,6 +34,8 @@ namespace PUJ
       Self& operator=( const Self& other );
       virtual ~FrameBuffer( );
 
+      void clone( const Self& other );
+
       void random_fill( );
 
       Self operator+( const Self& other ) const;

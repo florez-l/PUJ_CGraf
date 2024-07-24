@@ -27,7 +27,7 @@ namespace PUJ
         );
       Viewport( const Self& other );
       Self& operator=( const Self& other );
-      virtual ~Viewport( );
+      virtual ~Viewport( ) = default;
 
       bool isInside( const unsigned short& x, const unsigned short& y ) const;
 
