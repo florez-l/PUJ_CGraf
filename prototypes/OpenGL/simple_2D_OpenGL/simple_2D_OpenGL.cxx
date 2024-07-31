@@ -42,7 +42,6 @@ void display( )
   draw_triangle( );
 
   glutSwapBuffers( );
-  glutPostRedisplay( );
 }
 
 /**

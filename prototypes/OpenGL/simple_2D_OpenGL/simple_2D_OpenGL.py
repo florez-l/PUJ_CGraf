@@ -39,7 +39,6 @@ def display( ):
   draw_triangle( )
 
   glutSwapBuffers( )
-  glutPostRedisplay( )
 # end def
 
 '''
