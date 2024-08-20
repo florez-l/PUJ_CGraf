@@ -12,7 +12,7 @@
 class Scene
 {
 public:
-  Scene( );
+  Scene( const float& wx, const float& wy );
   virtual ~Scene( );
 
   void init( );
@@ -23,8 +23,8 @@ protected:
   void _load_scene( );
 
 protected:
-  std::array< float, 4 > m_BackgroundColor {  1,  1,  1, 0 };
-  std::array< float, 4 > m_WorldBounds     { -1, 16, -1, 8 };
+  std::array< float, 4 > m_BackgroundColor { 0, 0, 0, 0 };
+  std::array< float, 4 > m_WorldBounds     { 0, 0, 0, 0 };
 
   Object* m_Root { nullptr };
 };

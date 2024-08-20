@@ -4,13 +4,18 @@
 
 #include "Scene.h"
 
+#include <cmath>
 #include <GL/glu.h>
 #include <GL/gl.h>
 
 // -------------------------------------------------------------------------
 Scene::
-Scene( )
+Scene( const float& wx, const float& wy )
 {
+  this->m_WorldBounds[ 0 ] = 0;
+  this->m_WorldBounds[ 1 ] = wx;
+  this->m_WorldBounds[ 2 ] = 0;
+  this->m_WorldBounds[ 3 ] = wy;
 }
 
 // -------------------------------------------------------------------------
@@ -61,53 +66,26 @@ _load_scene( )
 
   this->m_Root = new Object( "root", "none" );
 
-  // Floor
-  Object* floor = new Object( "floor", "square" );
-  floor->set_color( 0, 0, 0 );
-  floor->set_draw_mode_to_polygon( );
-  floor->local_scale( 15, 0.3 );
-  floor->local_translate( 0.5, 0.5 );
-  this->m_Root->add_child( floor, 0, 0 );
+  // World frame
+  Object* frame = new Object( "frame", "square" );
+  frame->set_color( 0, 0, 0 );
+  frame->set_draw_mode_to_wireframe( );
+  frame->local_scale( this->m_WorldBounds[ 1 ], this->m_WorldBounds[ 3 ] );
+  frame->local_translate( 0.5, 0.5 );
+  this->m_Root->add_child( frame, 0, 0 );
+  
+  // Projectile
+  float radius =
+    this->m_WorldBounds[ 1 ] * this->m_WorldBounds[ 1 ]
+    +
+    this->m_WorldBounds[ 3 ] * this->m_WorldBounds[ 3 ];
+  radius = std::sqrt( radius ) * 1e-2;
 
-  // House
-  Object* house = new Object( "house", "square" );
-  house->set_color( 0.4, 0.4, 0.4 );
-  house->set_draw_mode_to_polygon( );
-  house->local_scale( 2.5, 3 );
-  house->local_translate( 0.5, 0.5 );
-  floor->add_child( house, 2, 0.3 );
-
-  // Ceiling
-  Object* ceiling = new Object( "ceiling", "triangle" );
-  ceiling->set_color( 1, 0, 0 );
-  ceiling->set_draw_mode_to_polygon( );
-  ceiling->local_scale( 4.5, 2 );
-  ceiling->local_translate( 0, 0.28867513459 );
-  house->add_child( ceiling, 1.25, 3 );
-
-  // Window1
-  Object* window1 = new Object( "window1", "square" );
-  window1->set_color( 1, 1, 1 );
-  window1->set_draw_mode_to_polygon( );
-  window1->local_scale( 0.4, 0.4 );
-  window1->local_translate( 0.5, 0.5 );
-  house->add_child( window1, 0.75, 2 );
-
-  // Window2
-  Object* window2 = new Object( "window2", "square" );
-  window2->set_color( 1, 1, 1 );
-  window2->set_draw_mode_to_polygon( );
-  window2->local_scale( 0.4, 0.4 );
-  window2->local_translate( 0.5, 0.5 );
-  house->add_child( window2, 1.75, 1.75 );
-
-  // Door
-  Object* door = new Object( "door", "square" );
-  door->set_color( 1, 0.64, 0 );
-  door->set_draw_mode_to_polygon( );
-  door->local_scale( 1, 1.5 );
-  door->local_translate( 0, 0.5 );
-  house->add_child( door, 1.25, 0 );
+  Object* projectile = new Object( "projectile", "circle" );
+  projectile->set_color( 1, 1, 1 );
+  projectile->set_draw_mode_to_wireframe( );
+  projectile->local_scale( radius, radius );
+  frame->add_child( projectile, 0, 0 );
 }
 
 // eof - $RCSfile$

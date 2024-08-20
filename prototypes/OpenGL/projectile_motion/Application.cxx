@@ -3,12 +3,29 @@
 // =========================================================================
 
 #include "Application.h"
+
+#include <sstream>
 #include <GL/glut.h>
+
+
+
+
+
+
+#include <iostream>
+
+
+
 
 // -------------------------------------------------------------------------
 void Application::
 init( int argc, char** argv )
 {
+  if( argc > 1 )
+    std::istringstream( argv[ 1 ] ) >> Self::s_WorldSize[ 0 ];
+  if( argc > 2 )
+    std::istringstream( argv[ 2 ] ) >> Self::s_WorldSize[ 1 ];
+
   glutInitWindowSize( Self::s_WindowSize[ 0 ], Self::s_WindowSize[ 1 ] );
   glutInitWindowPosition( 0, 0 );
   glutInit( &argc, argv );
@@ -17,12 +34,14 @@ init( int argc, char** argv )
 
   if( Self::s_Scene != nullptr )
     delete Self::s_Scene;
-  Self::s_Scene = new Scene( );
+  Self::s_Scene = new Scene( Self::s_WorldSize[ 0 ], Self::s_WorldSize[ 1 ] );
   Self::s_Scene->init( );
 
   glutDisplayFunc( Self::cbk_display );
   glutKeyboardFunc( Self::cbk_keyboard );
   glutReshapeFunc( Self::cbk_reshape );
+  glutMotionFunc( cbk_motion );
+  glutPassiveMotionFunc( cbk_passive_motion );
 }
 
 // -------------------------------------------------------------------------
@@ -73,6 +92,20 @@ cbk_reshape( int width, int height )
   Self::s_WindowSize[ 0 ] = width;
   Self::s_WindowSize[ 1 ] = height;
   glutPostRedisplay( );
+}
+
+// -------------------------------------------------------------------------
+void Application::
+cbk_motion( int x, int y )
+{
+  std::cout << "Motion: " << x << " " << y << std::endl;
+}
+
+// -------------------------------------------------------------------------
+void Application::
+cbk_passive_motion( int x, int y )
+{
+  std::cout << "PassiveMotion: " << x << " " << y << std::endl;
 }
 
 // eof - $RCSfile$
