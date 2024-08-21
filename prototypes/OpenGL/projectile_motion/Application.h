@@ -22,11 +22,12 @@ private:
   static void cbk_display( );
   static void cbk_keyboard( unsigned char key, int x, int y );
   static void cbk_reshape( int width, int height );
+  static void cbk_mouse( int button, int state, int x, int y );
   static void cbk_motion( int x, int y );
   static void cbk_passive_motion( int x, int y );
 
 private:
-  inline static std::array< int, 2 > s_WindowSize { 640, 480 };
+  inline static std::array< int, 2 > s_WindowSize { 700, 700 };
   inline static std::array< float, 2 > s_WorldSize { 100, 100 };
   inline static int s_MainWindowId { -1 };
 

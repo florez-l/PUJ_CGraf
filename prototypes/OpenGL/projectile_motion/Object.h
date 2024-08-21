@@ -8,15 +8,6 @@
 #include <string>
 #include <vector>
 
-/* TODO
-   #include <cmath>
-   #include <iostream>
-
-   #include <GL/glut.h>
-   #include <GL/glu.h>
-   #include <GL/gl.h>
-*/
-
 /**
  */
 class Object
@@ -45,7 +36,12 @@ public:
 
   void add_child( Object* child, float px, float py );
 
+  void visibility_off( );
+  void visibility_on( );
+
   void draw( ) const;
+
+  void set_point( const unsigned int& id, const float& x, const float& y );
 
 protected:
   void _identity( std::array< float, 16 >& M );
@@ -75,6 +71,8 @@ protected:
     };
 
   std::vector< Object* > m_Children;
+
+  bool m_Visibility { true };
 };
 
 #endif // __Object__h__

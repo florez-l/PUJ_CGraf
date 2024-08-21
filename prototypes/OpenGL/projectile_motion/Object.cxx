@@ -14,7 +14,15 @@ Object(
   )
   : m_Name( name )
 {
-  if( primitive == "triangle" )
+  if( primitive == "line" )
+  {
+    this->m_Points.push_back( 0 );
+    this->m_Points.push_back( 0 );
+    this->m_Points.push_back( 1 );
+    this->m_Points.push_back( 1 );
+    this->set_draw_mode( GL_LINES );
+  }
+  else if( primitive == "triangle" )
   {
     this->m_Points.push_back( -0.5 );
     this->m_Points.push_back( -0.28867513459 );
@@ -45,6 +53,8 @@ Object(
       this->m_Points.push_back( std::sin( w ) );
     } // end for
   } // end if
+
+  this->m_Points.shrink_to_fit( );
 }
 
 // -------------------------------------------------------------------------
@@ -162,28 +172,56 @@ add_child( Object* child, float px, float py )
 
 // -------------------------------------------------------------------------
 void Object::
+visibility_off( )
+{
+  this->m_Visibility = false;
+}
+
+// -------------------------------------------------------------------------
+void Object::
+visibility_on( )
+{
+  this->m_Visibility = true;
+}
+
+// -------------------------------------------------------------------------
+void Object::
 draw( ) const
 {
-  // std::cout << this->m_Name << std::endl;
-
   glPushMatrix( );
   glMultMatrixf( this->m_ParentTransformation.data( ) );
 
-  glPushMatrix( );
-  glMultMatrixf( this->m_LocalTransformation.data( ) );
-  glColor3fv( this->m_Color.data( ) );
-  glBegin( this->m_DrawMode );
+  if( this->m_Visibility )
   {
-    for( unsigned int i = 0; i < this->m_Points.size( ); i += 2 )
-      glVertex2fv( this->m_Points.data( ) + i );
-  }
-  glEnd( );
-  glPopMatrix( );
+    glPushMatrix( );
+    glMultMatrixf( this->m_LocalTransformation.data( ) );
+
+    glColor3fv( this->m_Color.data( ) );
+    glBegin( this->m_DrawMode );
+    {
+      for( unsigned int i = 0; i < this->m_Points.size( ); i += 2 )
+        glVertex2fv( this->m_Points.data( ) + i );
+    }
+    glEnd( );
+    glPopMatrix( );
+  } // end if
 
   for( const Object* o: this->m_Children )
     o->draw( );
 
   glPopMatrix( );
+}
+
+// -------------------------------------------------------------------------
+void Object::
+set_point( const unsigned int& id, const float& x, const float& y )
+{
+  unsigned int p = ( id << 1 );
+  if( p < this->m_Points.size( ) )
+  {
+    this->m_Points[ p ] = x;
+    this->m_Points[ p + 1 ] = y;
+  } // end if
 }
 
 // -------------------------------------------------------------------------

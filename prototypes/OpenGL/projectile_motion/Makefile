@@ -2,7 +2,7 @@
 # @author Leonardo Florez-Valencia (florez-l@javeriana.edu.co)
 # ==========================================================================
 
-HEADERS = Application.h Object.h Scene.h
+HEADERS = Application.h Helpers.h Object.h Scene.h
 SOURCES = Application.cxx Object.cxx Scene.cxx
 OBJECTS = Application.o Object.o Scene.o
 COMPILER = g++ -std=c++2a
@@ -11,10 +11,10 @@ LDFLAGS = -lGL -lGLU -lglut
 
 all: projectile_motion
 
-projectile_motion: $(OBJECTS) projectile_motion.cxx
+projectile_motion: $(OBJECTS) Helpers.h projectile_motion.cxx
 	$(COMPILER) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-%.o: %.cxx %.h
+%.o: %.cxx %.h Helpers.h
 	$(COMPILER) -c $(CFLAGS) $<
 
 clean:

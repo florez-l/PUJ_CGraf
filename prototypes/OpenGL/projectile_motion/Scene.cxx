@@ -5,17 +5,16 @@
 #include "Scene.h"
 
 #include <cmath>
-#include <GL/glu.h>
 #include <GL/gl.h>
 
 // -------------------------------------------------------------------------
 Scene::
 Scene( const float& wx, const float& wy )
 {
-  this->m_WorldBounds[ 0 ] = 0;
-  this->m_WorldBounds[ 1 ] = wx;
-  this->m_WorldBounds[ 2 ] = 0;
-  this->m_WorldBounds[ 3 ] = wy;
+  this->m_Bounds[ 0 ] = 0;
+  this->m_Bounds[ 1 ] = wx;
+  this->m_Bounds[ 2 ] = 0;
+  this->m_Bounds[ 3 ] = wy;
 }
 
 // -------------------------------------------------------------------------
@@ -31,10 +30,10 @@ void Scene::
 init( )
 {
   glClearColor(
-    this->m_BackgroundColor[ 0 ],
-    this->m_BackgroundColor[ 1 ],
-    this->m_BackgroundColor[ 2 ],
-    this->m_BackgroundColor[ 3 ]
+    this->m_Background[ 0 ],
+    this->m_Background[ 1 ],
+    this->m_Background[ 2 ],
+    this->m_Background[ 3 ]
     );
 
   this->_load_scene( );
@@ -42,11 +41,14 @@ init( )
 
 // -------------------------------------------------------------------------
 void Scene::
-update_projection( )
+project( const int& w, const int& h )
 {
-  gluOrtho2D(
-    this->m_WorldBounds[ 0 ], this->m_WorldBounds[ 1 ],
-    this->m_WorldBounds[ 2 ], this->m_WorldBounds[ 3 ]
+  double aw = ( w > h )? ( double( w ) / double( h ) ): double( 1 );
+  double ah = ( h > w )? ( double( h ) / double( w ) ): double( 1 );
+  glOrtho(
+    this->m_Bounds[ 0 ] * aw, this->m_Bounds[ 1 ] * aw,
+    this->m_Bounds[ 2 ] * ah, this->m_Bounds[ 3 ] * ah,
+    -1, 1
     );
 }
 
@@ -59,6 +61,48 @@ draw( )
 
 // -------------------------------------------------------------------------
 void Scene::
+pick( const float& x, const float& y )
+{
+  if( this->m_State != Self::FIRE )
+  {
+    if(
+      x >= ( this->m_Bounds[ 0 ] + this->m_Radius )
+      &&
+      x <= ( this->m_Bounds[ 1 ] - this->m_Radius )
+      &&
+      y >= ( this->m_Bounds[ 2 ] + this->m_Radius )
+      &&
+      y <= ( this->m_Bounds[ 3 ] - this->m_Radius )
+      )
+    {
+      if( this->m_State == Self::LOCALIZE )
+      {
+        this->m_Projectile->parent_identity( );
+        this->m_Projectile->parent_translate( x, y );
+        this->m_AimLine->set_point( 0, x, y );
+        this->m_AimLine->set_point( 1, x, y );
+      }
+      else if( this->m_State == Self::AIM )
+        this->m_AimLine->set_point( 1, x, y );
+    } // end if
+  } // end if
+}
+
+// -------------------------------------------------------------------------
+void Scene::
+shift_state( )
+{
+  if( this->m_State == Self::LOCALIZE )
+  {
+    this->m_State = Self::AIM;
+    this->m_AimLine->visibility_on( );
+  }
+  else if( this->m_State == Self::AIM )
+    this->m_State = Self::FIRE;
+}
+
+// -------------------------------------------------------------------------
+void Scene::
 _load_scene( )
 {
   if( this->m_Root == nullptr )
@@ -67,25 +111,37 @@ _load_scene( )
   this->m_Root = new Object( "root", "none" );
 
   // World frame
-  Object* frame = new Object( "frame", "square" );
-  frame->set_color( 0, 0, 0 );
-  frame->set_draw_mode_to_wireframe( );
-  frame->local_scale( this->m_WorldBounds[ 1 ], this->m_WorldBounds[ 3 ] );
-  frame->local_translate( 0.5, 0.5 );
-  this->m_Root->add_child( frame, 0, 0 );
+  this->m_Frame = new Object( "frame", "square" );
+  this->m_Frame->set_color( 1, 1, 1 );
+  this->m_Frame->set_draw_mode_to_wireframe( );
+  this->m_Frame->local_scale(
+    this->m_Bounds[ 1 ] - this->m_Bounds[ 0 ],
+    this->m_Bounds[ 3 ] - this->m_Bounds[ 2 ]
+    );
+  this->m_Frame->local_translate( 0.5, 0.5 );
+  this->m_Root->add_child( this->m_Frame, 0, 0 );
   
   // Projectile
-  float radius =
-    this->m_WorldBounds[ 1 ] * this->m_WorldBounds[ 1 ]
-    +
-    this->m_WorldBounds[ 3 ] * this->m_WorldBounds[ 3 ];
-  radius = std::sqrt( radius ) * 1e-2;
+  this->m_Radius =
+    ( this->m_Bounds[ 1 ] * this->m_Bounds[ 1 ] ) +
+    ( this->m_Bounds[ 3 ] * this->m_Bounds[ 3 ] );
+  this->m_Radius = std::sqrt( this->m_Radius ) * 1e-2;
 
-  Object* projectile = new Object( "projectile", "circle" );
-  projectile->set_color( 1, 1, 1 );
-  projectile->set_draw_mode_to_wireframe( );
-  projectile->local_scale( radius, radius );
-  frame->add_child( projectile, 0, 0 );
+  this->m_Projectile = new Object( "projectile", "circle" );
+  this->m_Projectile->set_color( 1, 1, 1 );
+  this->m_Projectile->set_draw_mode_to_wireframe( );
+  this->m_Projectile->local_scale( this->m_Radius, this->m_Radius );
+  this->m_Frame->add_child(
+    this->m_Projectile,
+    ( this->m_Bounds[ 1 ] - this->m_Bounds[ 0 ] ) * 0.5 + this->m_Bounds[ 0 ],
+    ( this->m_Bounds[ 3 ] - this->m_Bounds[ 2 ] ) * 0.5 + this->m_Bounds[ 2 ]
+    );
+
+  // Aim line
+  this->m_AimLine = new Object( "aim_line", "line" );
+  this->m_AimLine->set_color( 1, 1, 1 );
+  this->m_AimLine->visibility_off( );
+  this->m_Root->add_child( this->m_AimLine, 0, 0 );
 }
 
 // eof - $RCSfile$
