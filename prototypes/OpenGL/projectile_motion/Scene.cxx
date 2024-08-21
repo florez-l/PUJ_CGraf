@@ -4,23 +4,32 @@
 
 #include "Scene.h"
 
-
-
-#include <iostream>
-
-
-
 #include <cmath>
+#include <sstream>
 #include <GL/gl.h>
+
+#include "Object.h"
 
 // -------------------------------------------------------------------------
 Scene::
-Scene( const float& wx, const float& wy )
+Scene( int argc, char** argv )
 {
-  this->m_Bounds[ 0 ] = 0;
-  this->m_Bounds[ 1 ] = wx;
-  this->m_Bounds[ 2 ] = 0;
-  this->m_Bounds[ 3 ] = wy;
+  if( argc > 1 )
+    std::istringstream( argv[ 1 ] ) >> this->m_Bounds[ 1 ];
+  if( argc > 2 )
+    std::istringstream( argv[ 2 ] ) >> this->m_Bounds[ 3 ];
+  if( argc > 3 )
+    std::istringstream( argv[ 3 ] ) >> this->m_Gravity[ 0 ];
+  if( argc > 4 )
+    std::istringstream( argv[ 4 ] ) >> this->m_Gravity[ 1 ];
+
+  this->m_GravityNorm =
+    ( this->m_Gravity[ 0 ] * this->m_Gravity[ 0 ] )
+    +
+    ( this->m_Gravity[ 1 ] * this->m_Gravity[ 1 ] );
+  this->m_GravityNorm = std::sqrt( this->m_GravityNorm );
+  this->m_Gravity[ 0 ] /= this->m_GravityNorm;
+  this->m_Gravity[ 1 ] /= this->m_GravityNorm;
 }
 
 // -------------------------------------------------------------------------
@@ -64,24 +73,19 @@ draw( )
 {
   if( this->m_State == Self::FIRE )
   {
-    double t = double(
-      std::chrono::duration_cast< std::chrono::nanoseconds >(
+    TReal t = TReal(
+      std::chrono::duration_cast< std::chrono::milliseconds >(
         std::chrono::steady_clock::now( ) - this->m_StartTime
         ).count( )
-      ) * 1e-9;
+      ) * TReal( 1e-3 );
 
     this->m_Projectile->parent_identity( );
     this->m_Projectile->parent_translate(
       ( ( this->m_V0[ 2 ] - this->m_V0[ 0 ] ) * t ) + this->m_V0[ 0 ],
-      (
-        ( ( this->m_V0[ 3 ] - this->m_V0[ 1 ] ) * t )
-        -
-        ( 9.8 * 0.5 * t * t )
-        )
-      +
-      this->m_V0[ 1 ]
+      ( ( this->m_V0[ 3 ] - this->m_V0[ 1 ] ) * t ) + this->m_V0[ 1 ]
+      -
+      ( this->m_GravityNorm * 0.5 * t * t )
       );
-
   } // end if
 
   this->m_Root->draw( );
@@ -89,7 +93,7 @@ draw( )
 
 // -------------------------------------------------------------------------
 void Scene::
-pick( const float& x, const float& y )
+pick( const TReal& x, const TReal& y )
 {
   if( this->m_State != Self::FIRE )
   {

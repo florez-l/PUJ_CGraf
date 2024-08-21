@@ -4,19 +4,15 @@
 
 #include "Application.h"
 #include "Helpers.h"
+#include "Scene.h"
+#include "Traits.h"
 
-#include <sstream>
 #include <GL/glut.h>
 
 // -------------------------------------------------------------------------
 void Application::
 init( int argc, char** argv )
 {
-  if( argc > 1 )
-    std::istringstream( argv[ 1 ] ) >> Self::s_WorldSize[ 0 ];
-  if( argc > 2 )
-    std::istringstream( argv[ 2 ] ) >> Self::s_WorldSize[ 1 ];
-
   glutInitWindowSize( Self::s_WindowSize[ 0 ], Self::s_WindowSize[ 1 ] );
   glutInitWindowPosition( 0, 0 );
   glutInit( &argc, argv );
@@ -25,7 +21,7 @@ init( int argc, char** argv )
 
   if( Self::s_Scene != nullptr )
     delete Self::s_Scene;
-  Self::s_Scene = new Scene( Self::s_WorldSize[ 0 ], Self::s_WorldSize[ 1 ] );
+  Self::s_Scene = new Scene( argc, argv );
   Self::s_Scene->init( );
 
   glutIdleFunc( Self::cbk_idle );
@@ -118,23 +114,23 @@ cbk_motion( int x, int y )
 void Application::
 cbk_passive_motion( int x, int y )
 {
-  static const GLdouble _0 = GLdouble( 0 );
-  static const GLdouble _1 = GLdouble( 1 );
-  static GLdouble P[ 16 ], Pi[ 16 ], M[ 16 ], Mi[ 16 ];
+  static const TReal _0 = TReal( 0 );
+  static const TReal _1 = TReal( 1 );
+  static TReal P[ 16 ], Pi[ 16 ], M[ 16 ], Mi[ 16 ];
 
-  glGetDoublev(	GL_MODELVIEW_MATRIX, M );
-  glGetDoublev(	GL_PROJECTION_MATRIX, P );
+  glGetFloatv( GL_MODELVIEW_MATRIX, M );
+  glGetFloatv( GL_PROJECTION_MATRIX, P );
   if( invert_matrix_4x4( M, Mi ) && invert_matrix_4x4( P, Pi ) )
   {
-    GLdouble px, py, pz;
+    TReal px, py, pz;
     multiply_4x4(
       px, py, pz, Pi,
-      ( GLdouble( x << 1 ) / GLdouble( Self::s_WindowSize[ 0 ] ) ) - _1,
-      _1 - ( GLdouble( y << 1 ) / GLdouble( Self::s_WindowSize[ 1 ] ) ),
+      ( TReal( x << 1 ) / TReal( Self::s_WindowSize[ 0 ] ) ) - _1,
+      _1 - ( TReal( y << 1 ) / TReal( Self::s_WindowSize[ 1 ] ) ),
       _0
       );
 
-    GLdouble mx, my, mz;
+    TReal mx, my, mz;
     multiply_4x4( mx, my, mz, Mi, px, py, pz );
 
     Self::s_Scene->pick( mx, my );

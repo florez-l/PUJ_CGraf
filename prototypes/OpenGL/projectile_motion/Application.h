@@ -4,8 +4,9 @@
 #ifndef __Application__h__
 #define __Application__h__
 
-#include <array>
-#include "Scene.h"
+/**
+ */
+class Scene;
 
 /**
  */
@@ -28,8 +29,7 @@ private:
   static void cbk_passive_motion( int x, int y );
 
 private:
-  inline static std::array< int, 2 > s_WindowSize { 700, 700 };
-  inline static std::array< float, 2 > s_WorldSize { 100, 100 };
+  inline static int s_WindowSize[ 2 ] = { 700, 700 };
   inline static int s_MainWindowId { -1 };
 
   inline static Scene* s_Scene { nullptr };

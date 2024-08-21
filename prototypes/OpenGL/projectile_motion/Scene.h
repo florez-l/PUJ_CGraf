@@ -4,9 +4,13 @@
 #ifndef __Scene__h__
 #define __Scene__h__
 
-#include <array>
 #include <chrono>
-#include "Object.h"
+
+#include "Traits.h"
+
+/**
+ */
+class Object;
 
 /**
  */
@@ -17,39 +21,41 @@ public:
 
   enum States
   {
-    LOCALIZE = 0,
+    LOCALIZE,
     AIM,
     FIRE
   };
 
 public:
-  Scene( const float& wx, const float& wy );
+  Scene( int argc, char** argv );
   virtual ~Scene( );
 
   void init( );
   void project( const int& w, const int& h );
   void draw( );
 
-  void pick( const float& x, const float& y );
+  void pick( const TReal& x, const TReal& y );
   void shift_state( );
 
 protected:
   void _load_scene( );
 
 protected:
-  std::array< float, 4 > m_Background { 0, 0, 0, 0 };
-  std::array< float, 4 > m_Bounds     { 0, 0, 0, 0 };
+  TReal m_Background[ 4 ] = { 0, 0, 0, 0 };
+  TReal m_Bounds[ 4 ]     = { 0, 100, 0, 100 };
+  TReal m_Gravity[ 2 ]    = { 0, 9.8 };
+  TReal m_GravityNorm;
 
   Object* m_Root       { nullptr };
   Object* m_Frame      { nullptr };
   Object* m_Projectile { nullptr };
   Object* m_AimLine    { nullptr };
-  float   m_Radius     { 0 };
+  TReal   m_Radius     { 0 };
 
   States m_State { Self::LOCALIZE };
 
   std::chrono::steady_clock::time_point m_StartTime;
-  std::array< float, 4 > m_V0 { 0, 0, 0, 0 };
+  TReal m_V0[ 4 ] = { 0, 0, 0, 0 };
 };
 
 #endif // __Scene__h__

@@ -44,11 +44,11 @@ Object(
   }
   else if( primitive == "circle" )
   {
-    float _2pi = 8.0 * std::atan( 1.0 );
-    float k = _2pi / float( samples );
+    TReal _2pi = 8.0 * std::atan( 1.0 );
+    TReal k = _2pi / TReal( samples );
     for( unsigned short i = 0; i < samples; ++i )
     {
-      float w = float( i ) * k;
+      TReal w = TReal( i ) * k;
       this->m_Points.push_back( std::cos( w ) );
       this->m_Points.push_back( std::sin( w ) );
     } // end for
@@ -67,7 +67,7 @@ Object::
 
 // -------------------------------------------------------------------------
 void Object::
-set_color( float r, float g, float b )
+set_color( const TReal& r, const TReal& g, const TReal& b )
 {
   this->m_Color[ 0 ] = r;
   this->m_Color[ 1 ] = g;
@@ -76,9 +76,11 @@ set_color( float r, float g, float b )
 
 // -------------------------------------------------------------------------
 void Object::
-set_color( const std::array< float, 3 >& c )
+set_color( const TReal* c )
 {
-  this->m_Color = c;
+  this->m_Color[ 0 ] = c[ 0 ];
+  this->m_Color[ 1 ] = c[ 1 ];
+  this->m_Color[ 2 ] = c[ 2 ];
 }
 
 // -------------------------------------------------------------------------
@@ -111,21 +113,21 @@ local_identity( )
 
 // -------------------------------------------------------------------------
 void Object::
-local_rotate( float t )
+local_rotate( const TReal& t )
 {
   this->_rotate( this->m_LocalTransformation, t );
 }
 
 // -------------------------------------------------------------------------
 void Object::
-local_scale( float sx, float sy )
+local_scale( const TReal& sx, const TReal& sy )
 {
   this->_scale( this->m_LocalTransformation, sx, sy );
 }
 
 // -------------------------------------------------------------------------
 void Object::
-local_translate( float tx, float ty )
+local_translate( const TReal& tx, const TReal& ty )
 {
   this->_translate( this->m_LocalTransformation, tx, ty );
 }
@@ -139,28 +141,28 @@ parent_identity( )
 
 // -------------------------------------------------------------------------
 void Object::
-parent_rotate( float t )
+parent_rotate( const TReal& t )
 {
   this->_rotate( this->m_ParentTransformation, t );
 }
 
 // -------------------------------------------------------------------------
 void Object::
-parent_scale( float sx, float sy )
+parent_scale( const TReal& sx, const TReal& sy )
 {
   this->_scale( this->m_ParentTransformation, sx, sy );
 }
 
 // -------------------------------------------------------------------------
 void Object::
-parent_translate( float tx, float ty )
+parent_translate( const TReal& tx, const TReal& ty )
 {
   this->_translate( this->m_ParentTransformation, tx, ty );
 }
 
 // -------------------------------------------------------------------------
 void Object::
-add_child( Object* child, float px, float py )
+add_child( Object* child, const TReal& px, const TReal& py )
 {
   if( child != nullptr )
   {
@@ -189,14 +191,14 @@ void Object::
 draw( ) const
 {
   glPushMatrix( );
-  glMultMatrixf( this->m_ParentTransformation.data( ) );
+  glMultMatrixf( this->m_ParentTransformation );
 
   if( this->m_Visibility )
   {
     glPushMatrix( );
-    glMultMatrixf( this->m_LocalTransformation.data( ) );
+    glMultMatrixf( this->m_LocalTransformation );
 
-    glColor3fv( this->m_Color.data( ) );
+    glColor3fv( this->m_Color );
     glBegin( this->m_DrawMode );
     {
       for( unsigned int i = 0; i < this->m_Points.size( ); i += 2 )
@@ -214,7 +216,7 @@ draw( ) const
 
 // -------------------------------------------------------------------------
 void Object::
-set_point( const unsigned int& id, const float& x, const float& y )
+set_point( const unsigned int& id, const TReal& x, const TReal& y )
 {
   unsigned int p = ( id << 1 );
   if( p < this->m_Points.size( ) )
@@ -226,7 +228,7 @@ set_point( const unsigned int& id, const float& x, const float& y )
 
 // -------------------------------------------------------------------------
 void Object::
-_identity( std::array< float, 16 >& M )
+_identity( TReal* M )
 {
   M[  0 ] = 1;
   M[  1 ] = 0;
@@ -248,34 +250,13 @@ _identity( std::array< float, 16 >& M )
 
 // -------------------------------------------------------------------------
 void Object::
-_rotate( std::array< float, 16 >& M, float t )
+_rotate( TReal* M, const TReal& t )
 {
-  /* TODO
-     float ct = std::cos( t );
-     float st = std::sin( t );
-     float a = M[  0 ];
-     float b = M[  1 ];
-     float e = M[  4 ];
-     float f = M[  5 ];
-     float i = M[  8 ];
-     float j = M[  9 ];
-     float m = M[ 12 ];
-     float n = M[ 13 ];
-
-     M[  0 ] = ( b * st ) + ( a * ct );
-     M[  1 ] = ( b * ct ) - ( a * st );
-     M[  4 ] = ( f * st ) + ( e * ct );
-     M[  5 ] = ( f * ct ) - ( e * st );
-     M[  8 ] = ( j * st ) + ( i * ct );
-     M[  9 ] = ( j * ct ) - ( i * st );
-     M[ 12 ] = ( n * st ) + ( m * ct );
-     M[ 13 ] = ( n * ct ) - ( m * st );
-  */
 }
 
 // -------------------------------------------------------------------------
 void Object::
-_scale( std::array< float, 16 >& M, float sx, float sy )
+_scale( TReal* M, const TReal& sx, const TReal& sy )
 {
   M[ 0 ] *= sx;
   M[ 1 ] *= sx;
@@ -289,7 +270,7 @@ _scale( std::array< float, 16 >& M, float sx, float sy )
 
 // -------------------------------------------------------------------------
 void Object::
-_translate( std::array< float, 16 >& M, float tx, float ty )
+_translate( TReal* M, const TReal& tx, const TReal& ty )
 {
   M[ 12 ] += ( M[ 0 ] * tx ) + ( M[ 4 ] * ty );
   M[ 13 ] += ( M[ 1 ] * tx ) + ( M[ 5 ] * ty );

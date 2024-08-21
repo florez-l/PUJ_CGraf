@@ -4,9 +4,10 @@
 #ifndef __Object__h__
 #define __Object__h__
 
-#include <array>
 #include <string>
 #include <vector>
+
+#include "Traits.h"
 
 /**
  */
@@ -19,50 +20,50 @@ public:
     );
   virtual ~Object( );
 
-  void set_color( float r, float g, float b );
-  void set_color( const std::array< float, 3 >& c );
+  void set_color( const TReal& r, const TReal& g, const TReal& b );
+  void set_color( const TReal* c );
   void set_draw_mode( int mode );
   void set_draw_mode_to_polygon( );
   void set_draw_mode_to_wireframe( );
 
   void local_identity( );
-  void local_rotate( float t );
-  void local_scale( float sx, float sy );
-  void local_translate( float tx, float ty );
+  void local_rotate( const TReal& t );
+  void local_scale( const TReal& sx, const TReal& sy );
+  void local_translate( const TReal& tx, const TReal& ty );
   void parent_identity( );
-  void parent_rotate( float t );
-  void parent_scale( float sx, float sy );
-  void parent_translate( float tx, float ty );
+  void parent_rotate( const TReal& t );
+  void parent_scale( const TReal& sx, const TReal& sy );
+  void parent_translate( const TReal& tx, const TReal& ty );
 
-  void add_child( Object* child, float px, float py );
+  void add_child( Object* child, const TReal& px, const TReal& py );
 
   void visibility_off( );
   void visibility_on( );
 
   void draw( ) const;
 
-  void set_point( const unsigned int& id, const float& x, const float& y );
+  void set_point( const unsigned int& id, const TReal& x, const TReal& y );
 
 protected:
-  void _identity( std::array< float, 16 >& M );
-  void _rotate( std::array< float, 16 >& M, float t );
-  void _scale( std::array< float, 16 >& M, float sx, float sy );
-  void _translate( std::array< float, 16 >& M, float tx, float ty );
+  void _identity( TReal* M );
+  void _rotate( TReal* M, const TReal& t );
+  void _scale( TReal* M, const TReal& sx, const TReal& sy );
+  void _translate( TReal* M, const TReal& tx, const TReal& ty );
 
 protected:
   std::string m_Name;
-  std::vector< float > m_Points;
-  std::array< float, 3 > m_Color { 1, 1, 1 };
+  std::vector< TReal > m_Points;
+  TReal m_Color[ 3 ] = { 1, 1, 1 };
   int m_DrawMode { 0 };
 
-  std::array< float, 16 > m_LocalTransformation
+  TReal m_LocalTransformation[ 16 ] =
     {
       1, 0, 0, 0,
       0, 1, 0, 0,
       0, 0, 1, 0,
       0, 0, 0, 1
     };
-  std::array< float, 16 > m_ParentTransformation
+  TReal m_ParentTransformation[ 16 ] =
     {
       1, 0, 0, 0,
       0, 1, 0, 0,

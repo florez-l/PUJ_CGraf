@@ -1,15 +1,13 @@
 // =========================================================================
 // @author Leonardo Florez-Valencia (florez-l@javeriana.edu.co)
 // =========================================================================
+#ifndef __Traits__h__
+#define __Traits__h__
 
-#include <iostream>
-#include "Application.h"
+#include <GL/gl.h>
 
-int main( int argc, char** argv )
-{
-  Application::init( argc, argv );
-  Application::go( );
-  return( EXIT_SUCCESS );
-}
+using TReal = GLfloat;
+
+#endif // __Traits__h__
 
 // eof - $RCSfile$
