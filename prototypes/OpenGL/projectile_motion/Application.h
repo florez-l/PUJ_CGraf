@@ -19,6 +19,7 @@ public:
   static void go( );
 
 private:
+  static void cbk_idle( );
   static void cbk_display( );
   static void cbk_keyboard( unsigned char key, int x, int y );
   static void cbk_reshape( int width, int height );

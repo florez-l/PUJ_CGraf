@@ -5,6 +5,7 @@
 #define __Scene__h__
 
 #include <array>
+#include <chrono>
 #include "Object.h"
 
 /**
@@ -46,6 +47,9 @@ protected:
   float   m_Radius     { 0 };
 
   States m_State { Self::LOCALIZE };
+
+  std::chrono::steady_clock::time_point m_StartTime;
+  std::array< float, 4 > m_V0 { 0, 0, 0, 0 };
 };
 
 #endif // __Scene__h__

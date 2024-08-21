@@ -4,6 +4,12 @@
 
 #include "Scene.h"
 
+
+
+#include <iostream>
+
+
+
 #include <cmath>
 #include <GL/gl.h>
 
@@ -56,6 +62,28 @@ project( const int& w, const int& h )
 void Scene::
 draw( )
 {
+  if( this->m_State == Self::FIRE )
+  {
+    double t = double(
+      std::chrono::duration_cast< std::chrono::nanoseconds >(
+        std::chrono::steady_clock::now( ) - this->m_StartTime
+        ).count( )
+      ) * 1e-9;
+
+    this->m_Projectile->parent_identity( );
+    this->m_Projectile->parent_translate(
+      ( ( this->m_V0[ 2 ] - this->m_V0[ 0 ] ) * t ) + this->m_V0[ 0 ],
+      (
+        ( ( this->m_V0[ 3 ] - this->m_V0[ 1 ] ) * t )
+        -
+        ( 9.8 * 0.5 * t * t )
+        )
+      +
+      this->m_V0[ 1 ]
+      );
+
+  } // end if
+
   this->m_Root->draw( );
 }
 
@@ -81,9 +109,15 @@ pick( const float& x, const float& y )
         this->m_Projectile->parent_translate( x, y );
         this->m_AimLine->set_point( 0, x, y );
         this->m_AimLine->set_point( 1, x, y );
+        this->m_V0[ 0 ] = this->m_V0[ 2 ] = x;
+        this->m_V0[ 1 ] = this->m_V0[ 3 ] = y;
       }
       else if( this->m_State == Self::AIM )
+      {
         this->m_AimLine->set_point( 1, x, y );
+        this->m_V0[ 2 ] = x;
+        this->m_V0[ 3 ] = y;
+      } // end if
     } // end if
   } // end if
 }
@@ -98,7 +132,10 @@ shift_state( )
     this->m_AimLine->visibility_on( );
   }
   else if( this->m_State == Self::AIM )
+  {
     this->m_State = Self::FIRE;
+    this->m_StartTime = std::chrono::steady_clock::now( );
+  } // end if
 }
 
 // -------------------------------------------------------------------------

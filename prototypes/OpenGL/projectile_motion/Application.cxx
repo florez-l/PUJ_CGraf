@@ -28,6 +28,7 @@ init( int argc, char** argv )
   Self::s_Scene = new Scene( Self::s_WorldSize[ 0 ], Self::s_WorldSize[ 1 ] );
   Self::s_Scene->init( );
 
+  glutIdleFunc( Self::cbk_idle );
   glutDisplayFunc( Self::cbk_display );
   glutKeyboardFunc( Self::cbk_keyboard );
   glutReshapeFunc( Self::cbk_reshape );
@@ -41,6 +42,13 @@ void Application::
 go( )
 {
   glutMainLoop( );
+}
+
+// -------------------------------------------------------------------------
+void Application::
+cbk_idle( )
+{
+  glutPostRedisplay( );
 }
 
 // -------------------------------------------------------------------------
