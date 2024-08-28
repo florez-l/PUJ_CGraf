@@ -228,4 +228,10 @@ _translate( TReal* M, const TReal& x, const TReal& y, const TReal& z )
   */
 }
 
+// -------------------------------------------------------------------------
+void PUJ::CGraf::Object::
+_local_draw( ) const
+{
+}
+
 // eof - $RCSfile$

@@ -39,6 +39,8 @@ namespace PUJ
       void set_color( const TReal& r, const TReal& g, const TReal& b );
       void set_color( const TReal* c );
 
+      void load_bounding_box( TReal* b ) const;
+
       void load_from_OBJ( const std::string& fname );
 
     protected:

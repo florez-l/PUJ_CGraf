@@ -48,7 +48,7 @@ namespace PUJ
       void _scale( TReal* M, const TReal& x, const TReal& y, const TReal& z );
       void _translate( TReal* M, const TReal& x, const TReal& y, const TReal& z );
 
-      virtual void _local_draw( ) const = 0;
+      virtual void _local_draw( ) const;
 
     protected:
       std::string m_Name;

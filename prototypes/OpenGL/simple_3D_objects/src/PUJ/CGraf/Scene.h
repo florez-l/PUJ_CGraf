@@ -29,7 +29,7 @@ namespace PUJ
       void draw( );
 
     protected:
-      void _load_scene( );
+      virtual void _load_scene( ) = 0;
 
     protected:
       TReal m_Background[ 4 ] = { 0, 0, 0, 0 };

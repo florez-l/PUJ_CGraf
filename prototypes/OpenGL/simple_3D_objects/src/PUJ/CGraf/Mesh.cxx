@@ -64,6 +64,35 @@ set_color( const TReal* c )
 
 // -------------------------------------------------------------------------
 void PUJ::CGraf::Mesh::
+load_bounding_box( TReal* b ) const
+{
+  if( this->m_Points.size( ) >= 3 )
+  {
+    b[ 0 ] = b[ 1 ] = this->m_Points[ 0 ];
+    b[ 2 ] = b[ 3 ] = this->m_Points[ 1 ];
+    b[ 4 ] = b[ 5 ] = this->m_Points[ 2 ];
+
+    for( unsigned long long i = 3; i < this->m_Points.size( ); i += 3 )
+    {
+      if( this->m_Points[ i ] < b[ 0 ] ) b[ 0 ] = this->m_Points[ i ];
+      if( b[ 1 ] < this->m_Points[ i ] ) b[ 1 ] = this->m_Points[ i ];
+
+      if( this->m_Points[ i + 1 ] < b[ 2 ] ) b[ 2 ] = this->m_Points[ i + 1 ];
+      if( b[ 3 ] < this->m_Points[ i + 1 ] ) b[ 3 ] = this->m_Points[ i + 1 ];
+
+      if( this->m_Points[ i + 2 ] < b[ 4 ] ) b[ 4 ] = this->m_Points[ i + 2 ];
+      if( b[ 5 ] < this->m_Points[ i + 2 ] ) b[ 5 ] = this->m_Points[ i + 2 ];
+    } // end for
+  }
+  else
+  {
+    b[ 0 ] = b[ 2 ] = b[ 4 ] = -1;
+    b[ 1 ] = b[ 3 ] = b[ 5 ] =  1;
+  } // end if
+}
+
+// -------------------------------------------------------------------------
+void PUJ::CGraf::Mesh::
 load_from_OBJ( const std::string& fname )
 {
   // Clean previous data
@@ -112,7 +141,7 @@ load_from_OBJ( const std::string& fname )
         TNat i;
         unsigned long long s = this->m_Indices.size( );
         while( ls >> i )
-          this->m_Indices.push_back( i );
+          this->m_Indices.push_back( i - 1 );
         this->m_Sizes.push_back( this->m_Indices.size( ) - s );
       } // end if
     } // end if
@@ -127,34 +156,49 @@ load_from_OBJ( const std::string& fname )
 void PUJ::CGraf::Mesh::
 _local_draw( ) const
 {
-  glColor3fv( this->m_Color );
-  /* TODO
-     glBegin( this->m_DrawMode );
-     {
-     for( unsigned int i = 0; i < this->m_Points.size( ); i += 2 )
-     glVertex2fv( this->m_Points.data( ) + i );
-     }
-     glEnd( );
-  */
-
-
-/* TODO
-   enum DrawMode
-   {
-   Points,
-   Wireframe,
-   Surface,
-   SurfaceWithWireframe
-   };
-*/
-
-/* TODO
-      Self::DrawMode m_DrawMode
-      TReal m_Color[ 3 ] = { 1, 1, 1 }
-*/
-
-
-
+  if( this->m_DrawMode == Self::Points )
+  {
+    glColor3fv( this->m_Color );
+    glBegin( GL_POINTS );
+    {
+      for( unsigned int i = 0; i < this->m_Points.size( ); i += 3 )
+        glVertex3fv( this->m_Points.data( ) + i );
+    }
+    glEnd( );
+  }
+  else if( this->m_DrawMode == Self::Wireframe )
+  {
+    glColor3fv( this->m_Color );
+    unsigned long long i = 0;
+    for( const auto& sz: this->m_Sizes )
+    {
+      glBegin( GL_LINE_LOOP );
+      {
+        for( unsigned long long j = 0; j < sz; ++j )
+          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ i + j ] );
+      }
+      glEnd( );
+      i += sz;
+    } // end for
+  }
+  else if( this->m_DrawMode == Self::Surface )
+  {
+    glColor3fv( this->m_Color );
+    unsigned long long i = 0;
+    for( const auto& sz: this->m_Sizes )
+    {
+      glBegin( GL_POLYGON );
+      {
+        for( unsigned long long j = 0; j < sz; ++j )
+          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ i + j ] );
+      }
+      glEnd( );
+      i += sz;
+    } // end for
+  }
+  else if( this->m_DrawMode == Self::SurfaceWithWireframe )
+  {
+  } // end if
 }
 
 // eof - $RCSfile$
