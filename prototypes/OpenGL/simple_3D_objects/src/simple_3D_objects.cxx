@@ -40,11 +40,32 @@ int main( int argc, char** argv )
 
     if( line.data( )[ b ] != '#' && line.data( )[ b ] != '\0' )
     {
-      std::cout << line << std::endl;
-    } // end if
+      std::istringstream ls( line.data( ) + b );
+      std::string cmd;
+      ls >> cmd;
 
+      if( cmd == "v" )
+      {
+        TReal x, y, z;
+        ls >> x >> y >> z;
+        points.push_back( x );
+        points.push_back( y );
+        points.push_back( z );
+      }
+      else if( cmd == "f" )
+      {
+        TNat i;
+        unsigned long long s = indices.size( );
+        while( ls >> i )
+          indices.push_back( i );
+        sizes.push_back( indices.size( ) - s );
+      } // end if
+    } // end if
   } // end while
 
+  points.shrink_to_fit( );
+  indices.shrink_to_fit( );
+  sizes.shrink_to_fit( );
 
   return( EXIT_SUCCESS );
 }
