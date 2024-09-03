@@ -175,7 +175,7 @@ _local_draw( ) const
       glBegin( GL_LINE_LOOP );
       {
         for( unsigned long long j = 0; j < sz; ++j )
-          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ i + j ] );
+          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ ( i + j ) * 3 ] );
       }
       glEnd( );
       i += sz;
@@ -190,7 +190,7 @@ _local_draw( ) const
       glBegin( GL_POLYGON );
       {
         for( unsigned long long j = 0; j < sz; ++j )
-          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ i + j ] );
+          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ ( i + j ) * 3 ] );
       }
       glEnd( );
       i += sz;
