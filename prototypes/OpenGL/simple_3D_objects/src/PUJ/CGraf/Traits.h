@@ -8,8 +8,8 @@ namespace PUJ
 {
   namespace CGraf
   {
-    using TReal = float;
     using TNat  = unsigned short;
+    using TReal = float;
   } // end namespace
 } // end namespace
 

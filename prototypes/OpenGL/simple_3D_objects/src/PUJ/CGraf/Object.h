@@ -17,6 +17,9 @@ namespace PUJ
     class Object
     {
     public:
+      using Self = Object;
+
+    public:
       Object( const std::string& name );
       virtual ~Object( );
 

@@ -3,6 +3,7 @@
 // =========================================================================
 
 #include <PUJ/CGraf/Scene.h>
+#include <PUJ/CGraf/Camera.h>
 #include <PUJ/CGraf/Object.h>
 
 #include <limits>

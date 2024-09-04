@@ -17,6 +17,10 @@ include_directories(src)
 add_library(
   PUJ_CGraf_Simple3DObject
   STATIC
+  src/PUJ/CGraf/Camera.cxx
+  src/PUJ/CGraf/Camera.h
+  src/PUJ/CGraf/TrackballCamera.cxx
+  src/PUJ/CGraf/TrackballCamera.h
   src/PUJ/CGraf/Mesh.cxx
   src/PUJ/CGraf/Mesh.h
   src/PUJ/CGraf/Object.cxx
@@ -31,6 +35,10 @@ target_link_libraries(PUJ_CGraf_Simple3DObject OpenGL::GL  OpenGL::GLU)
 add_executable(
   Simple3DObject
   src/simple_3D_objects.cxx
+  src/Application.cxx
+  src/Application.h
+  src/Scene.cxx
+  src/Scene.h
   )
 target_link_libraries(Simple3DObject PUJ_CGraf_Simple3DObject GLUT::GLUT)
 
