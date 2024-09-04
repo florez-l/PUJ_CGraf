@@ -2,10 +2,28 @@
 // @author Leonardo Florez-Valencia (florez-l@javeriana.edu.co)
 // =========================================================================
 
+
+
+
+
+#include <iostream>
+
+
+
+
+
+
+
+
+
+
+
 #include <PUJ/CGraf/Mesh.h>
 
 #include <fstream>
 #include <sstream>
+
+#include <boost/tokenizer.hpp>
 
 #include <GL/gl.h>
 
@@ -97,7 +115,9 @@ load_from_OBJ( const std::string& fname )
 {
   // Clean previous data
   this->m_Points.clear( );
-  this->m_Indices.clear( );
+  this->m_Normals.clear( );
+  this->m_Faces.clear( );
+  this->m_FacesNormals.clear( );
   this->m_Sizes.clear( );
 
   // Load data into a buffer
@@ -136,23 +156,52 @@ load_from_OBJ( const std::string& fname )
         this->m_Points.push_back( y );
         this->m_Points.push_back( z );
       }
+      else if( cmd == "vn" )
+      {
+        TReal x, y, z;
+        ls >> x >> y >> z;
+        this->m_Normals.push_back( x );
+        this->m_Normals.push_back( y );
+        this->m_Normals.push_back( z );
+      }
       else if( cmd == "f" )
       {
         std::string t;
-        unsigned long long s = this->m_Indices.size( );
+        unsigned long long s = this->m_Faces.size( );
         while( ls >> t )
         {
-          TNat i;
-          std::istringstream( t.substr( 0, t.find_first_of( '/' ) ) ) >> i;
-          this->m_Indices.push_back( ( i - 1 ) * 3 );
+          boost::char_separator< char > s( "/" );
+          boost::tokenizer< boost::char_separator< char > > tokens( t, s );
+
+          auto i = tokens.begin( );
+          unsigned short ntoks = std::distance( i, tokens.end( ) );
+
+          // Indices for each face
+          this->m_Faces.push_back( 0 );
+          std::istringstream( i->substr( 0, i->find_first_of( '/' ) ) )
+            >> this->m_Faces.back( );
+          this->m_Faces.back( ) -= 1;
+          this->m_Faces.back( ) *= 3;
+
+          // Indices for each vertex normal, if it exists
+          if( ntoks > 1 )
+          {
+            std::advance( i, ntoks - 1 );
+            this->m_FacesNormals.push_back( 0 );
+            std::istringstream( *i ) >> this->m_FacesNormals.back( );
+            this->m_FacesNormals.back( ) -= 1;
+            this->m_FacesNormals.back( ) *= 3;
+          } // end if
         } // end while
-        this->m_Sizes.push_back( this->m_Indices.size( ) - s );
+        this->m_Sizes.push_back( this->m_Faces.size( ) - s );
       } // end if
     } // end if
   } // end while
 
   this->m_Points.shrink_to_fit( );
-  this->m_Indices.shrink_to_fit( );
+  this->m_Normals.shrink_to_fit( );
+  this->m_Faces.shrink_to_fit( );
+  this->m_FacesNormals.shrink_to_fit( );
   this->m_Sizes.shrink_to_fit( );
 }
 
@@ -161,6 +210,7 @@ void PUJ::CGraf::Mesh::
 _local_draw( ) const
 {
   const TReal* p = this->m_Points.data( );
+  const TReal* n = this->m_Normals.data( );
   if( this->m_DrawMode == Self::Points )
   {
     glColor3fv( this->m_Color );
@@ -182,6 +232,12 @@ _local_draw( ) const
       ( this->m_DrawMode == Self::Wireframe )?
       GL_LINE_LOOP:
       GL_POLYGON;
+    bool has_normals
+      =
+      ( this->m_FacesNormals.size( ) > 0 )
+      &&
+      ( mode == GL_POLYGON );
+
     glColor3fv( this->m_Color );
     unsigned long long i = 0;
     for( const auto& sz: this->m_Sizes )
@@ -189,7 +245,11 @@ _local_draw( ) const
       glBegin( mode );
       {
         for( unsigned long long j = 0; j < sz; ++j )
-          glVertex3fv( p + this->m_Indices[ ( i + j ) ] );
+        {
+          if( has_normals )
+            glNormal3fv( n + this->m_FacesNormals[ ( i + j ) ] );
+          glVertex3fv( p + this->m_Faces[ ( i + j ) ] );
+        } // end for
       }
       glEnd( );
       i += sz;
@@ -204,7 +264,7 @@ _local_draw( ) const
       glBegin( GL_POLYGON );
       {
         for( unsigned long long j = 0; j < sz; ++j )
-          glVertex3fv( p + this->m_Indices[ ( i + j ) ] );
+          glVertex3fv( p + this->m_Faces[ ( i + j ) ] );
       }
       glEnd( );
       i += sz;
@@ -221,7 +281,7 @@ _local_draw( ) const
       glBegin( GL_LINE_LOOP );
       {
         for( unsigned long long j = 0; j < sz; ++j )
-          glVertex3fv( p + this->m_Indices[ ( i + j ) ] );
+          glVertex3fv( p + this->m_Faces[ ( i + j ) ] );
       }
       glEnd( );
       i += sz;
