@@ -3,6 +3,7 @@
 // =========================================================================
 
 #include <iostream>
+#include <sstream>
 
 #include <PUJ/CGraf/Object.h>
 #include <PUJ/CGraf/Mesh.h>
@@ -58,6 +59,21 @@ public:
   Simple3DScene( int argc, char** argv )
     : PUJ::CGraf::Scene( argc, argv )
     {
+      if( argc == 1 )
+      {
+        std::stringstream err;
+        err
+          << "Usage: " << argv[ 0 ] << " [file.obj]" << std::endl
+          << "You can download some examples from:" << std::endl
+          << "****************************************************"
+          << std::endl
+          << "* https://www.prinmath.com/csci5229/OBJ/index.html *"
+          << std::endl
+          << "****************************************************"
+          << std::endl;
+        throw std::invalid_argument( err.str( ) );
+      } // end if
+      this->m_Model = argv[ 1 ];
     }
   virtual ~Simple3DScene( ) = default;
 
@@ -69,12 +85,12 @@ protected:
 
       this->m_Root = new PUJ::CGraf::Object( "root" );
 
-      // Load room
-      PUJ::CGraf::Mesh* room = new PUJ::CGraf::Mesh( "room" );
-      room->set_drawmode_to_wireframe( );
-      room->load_from_OBJ( "./res/room.obj" );
-      room->load_bounding_box( this->m_Bounds );
-      this->m_Root->add_child( room, 0, 0, 0 );
+      // Load object
+      PUJ::CGraf::Mesh* object = new PUJ::CGraf::Mesh( "object" );
+      object->set_drawmode_to_wireframe( );
+      object->load_from_OBJ( this->m_Model );
+      object->load_bounding_box( this->m_Bounds );
+      this->m_Root->add_child( object, 0, 0, 0 );
 
       // Configure camera
       this->m_Camera = new TrackballCamera( );
@@ -90,6 +106,9 @@ protected:
         ( this->m_Bounds[ 5 ] + this->m_Bounds[ 4 ] ) * 0.5
         );
     }
+
+protected:
+  std::string m_Model;
 };
 
 /**
@@ -118,8 +137,16 @@ private:
 // -------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-  Application::init( argc, argv );
-  Application::go( );
+  try
+  {
+    Application::init( argc, argv );
+    Application::go( );
+  }
+  catch( const std::exception& err )
+  {
+    std::cerr << "Error caught: " << err.what( ) << std::endl;
+    return( EXIT_FAILURE );
+  } // end try
   return( EXIT_SUCCESS );
 }
 

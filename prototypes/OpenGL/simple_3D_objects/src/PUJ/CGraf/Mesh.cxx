@@ -2,6 +2,19 @@
 // @author Leonardo Florez-Valencia (florez-l@javeriana.edu.co)
 // =========================================================================
 
+
+
+#include <iostream>
+
+
+
+
+
+
+
+
+
+
 #include <PUJ/CGraf/Mesh.h>
 
 #include <fstream>
@@ -138,10 +151,14 @@ load_from_OBJ( const std::string& fname )
       }
       else if( cmd == "f" )
       {
-        TNat i;
+        std::string t;
         unsigned long long s = this->m_Indices.size( );
-        while( ls >> i )
-          this->m_Indices.push_back( i - 1 );
+        while( ls >> t )
+        {
+          TNat i;
+          std::istringstream( t.substr( 0, t.find_first_of( '/' ) ) ) >> i;
+          this->m_Indices.push_back( ( i - 1 ) * 3 );
+        } // end while
         this->m_Sizes.push_back( this->m_Indices.size( ) - s );
       } // end if
     } // end if
@@ -156,32 +173,42 @@ load_from_OBJ( const std::string& fname )
 void PUJ::CGraf::Mesh::
 _local_draw( ) const
 {
+  const TReal* p = this->m_Points.data( );
   if( this->m_DrawMode == Self::Points )
   {
     glColor3fv( this->m_Color );
     glBegin( GL_POINTS );
     {
       for( unsigned int i = 0; i < this->m_Points.size( ); i += 3 )
-        glVertex3fv( this->m_Points.data( ) + i );
+        glVertex3fv( p + i );
     }
     glEnd( );
   }
-  else if( this->m_DrawMode == Self::Wireframe )
+  else if(
+    this->m_DrawMode == Self::Wireframe
+    ||
+    this->m_DrawMode == Self::Surface
+    )
   {
+    int mode
+      =
+      ( this->m_DrawMode == Self::Wireframe )?
+      GL_LINE_LOOP:
+      GL_POLYGON;
     glColor3fv( this->m_Color );
     unsigned long long i = 0;
     for( const auto& sz: this->m_Sizes )
     {
-      glBegin( GL_LINE_LOOP );
+      glBegin( mode );
       {
         for( unsigned long long j = 0; j < sz; ++j )
-          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ ( i + j ) * 3 ] );
+          glVertex3fv( p + this->m_Indices[ ( i + j ) ] );
       }
       glEnd( );
       i += sz;
     } // end for
   }
-  else if( this->m_DrawMode == Self::Surface )
+  else if( this->m_DrawMode == Self::SurfaceWithWireframe )
   {
     glColor3fv( this->m_Color );
     unsigned long long i = 0;
@@ -190,14 +217,28 @@ _local_draw( ) const
       glBegin( GL_POLYGON );
       {
         for( unsigned long long j = 0; j < sz; ++j )
-          glVertex3fv( this->m_Points.data( ) + this->m_Indices[ ( i + j ) * 3 ] );
+          glVertex3fv( p + this->m_Indices[ ( i + j ) ] );
       }
       glEnd( );
       i += sz;
     } // end for
-  }
-  else if( this->m_DrawMode == Self::SurfaceWithWireframe )
-  {
+
+    glColor3f(
+      1 - this->m_Color[ 0 ],
+      1 - this->m_Color[ 1 ],
+      1 - this->m_Color[ 2 ]
+      );
+    i = 0;
+    for( const auto& sz: this->m_Sizes )
+    {
+      glBegin( GL_LINE_LOOP );
+      {
+        for( unsigned long long j = 0; j < sz; ++j )
+          glVertex3fv( p + this->m_Indices[ ( i + j ) ] );
+      }
+      glEnd( );
+      i += sz;
+    } // end for
   } // end if
 }
 
