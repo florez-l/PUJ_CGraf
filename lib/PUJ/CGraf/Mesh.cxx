@@ -3,13 +3,23 @@
 // =========================================================================
 
 #include <PUJ/CGraf/Mesh.h>
+
 #include <GL/gl.h>
+#include <PUJ/CGraf/Texture.h>
 
 // -------------------------------------------------------------------------
 PUJ::CGraf::Mesh::
 Mesh( const std::string& name )
   : Superclass( name )
 {
+}
+
+// -------------------------------------------------------------------------
+PUJ::CGraf::Mesh::
+~Mesh( )
+{
+  if( this->m_Texture != nullptr )
+    delete this->m_Texture;
 }
 
 // -------------------------------------------------------------------------
@@ -91,136 +101,40 @@ load_bounding_box( TReal* b ) const
 void PUJ::CGraf::Mesh::
 _local_draw( ) const
 {
-  /* TODO
-     std::vector< TReal > m_Points;
-     std::vector< TReal > m_Normals;
-     std::vector< TReal > m_Textures;
-     std::vector< TNat >  m_Triangles;
-     std::vector< TNat >  m_Quads;
-     std::vector< TNat >  m_Polygons;
-     std::vector< TNat >  m_PolygonSizes;
-  */
-
-  // glBegin( GL_TRIANGLES );
-
+  // Draw triangles
+  const TReal* p = this->m_Points.data( );
+  const TReal* n = this->m_Normals.data( );
   const TNat* i = this->m_Triangles.data( );
   unsigned long long N = this->m_Triangles.size( );
-  for( unsigned long long t = 0; t < N; t += 9 )
+
+  glBegin( GL_TRIANGLES );
   {
-    TNat p1 = *( i + t );
-    TNat t1 = *( i + ( t + 1 ) );
-    TNat n1 = *( i + ( t + 2 ) );
-    TNat p2 = *( i + ( t + 3 ) );
-    TNat t2 = *( i + ( t + 4 ) );
-    TNat n2 = *( i + ( t + 5 ) );
-    TNat p3 = *( i + ( t + 6 ) );
-    TNat t3 = *( i + ( t + 7 ) );
-    TNat n3 = *( i + ( t + 8 ) );
+    for( unsigned long long t = 0; t < N; t += 9 )
+    {
+      TNat p1 = *( i + t );
+      TNat t1 = *( i + ( t + 1 ) );
+      TNat n1 = *( i + ( t + 2 ) );
+      TNat p2 = *( i + ( t + 3 ) );
+      TNat t2 = *( i + ( t + 4 ) );
+      TNat n2 = *( i + ( t + 5 ) );
+      TNat p3 = *( i + ( t + 6 ) );
+      TNat t3 = *( i + ( t + 7 ) );
+      TNat n3 = *( i + ( t + 8 ) );
 
-    glBegin( GL_LINE_LOOP );
+      if( n1 != 0 )
+        glNormal3fv( n + ( ( n1 - 1 ) * 3 ) );
+      glVertex3fv( p + ( ( p1 - 1 ) * 3 ) );
 
-    if( n1 != 0 )
-      glNormal3fv( this->m_Normals.data( ) + ( ( n1 - 1 ) * 3 ) );
-    glVertex3fv( this->m_Points.data( ) + ( ( p1 - 1 ) * 3 ) );
+      if( n2 != 0 )
+        glNormal3fv( n + ( ( n2 - 1 ) * 3 ) );
+      glVertex3fv( p + ( ( p2 - 1 ) * 3 ) );
 
-    if( n2 != 0 )
-      glNormal3fv( this->m_Normals.data( ) + ( ( n2 - 1 ) * 3 ) );
-    glVertex3fv( this->m_Points.data( ) + ( ( p2 - 1 ) * 3 ) );
-
-    if( n3 != 0 )
-      glNormal3fv( this->m_Normals.data( ) + ( ( n3 - 1 ) * 3 ) );
-    glVertex3fv( this->m_Points.data( ) + ( ( p3 - 1 ) * 3 ) );
-
-    glEnd( );
-
-  } // end for
-
-  // glEnd( );
-
-
-
-
-
-  /* TODO
-     const TReal* p = this->m_Points.data( );
-     const TReal* n = this->m_Normals.data( );
-     if( this->m_DrawMode == Self::Points )
-     {
-     glColor3fv( this->m_Color );
-     glBegin( GL_POINTS );
-     {
-     for( unsigned int i = 0; i < this->m_Points.size( ); i += 3 )
-     glVertex3fv( p + i );
-     }
-     glEnd( );
-     }
-     else if(
-     this->m_DrawMode == Self::Wireframe
-     ||
-     this->m_DrawMode == Self::Surface
-     )
-     {
-     int mode
-     =
-     ( this->m_DrawMode == Self::Wireframe )?
-     GL_LINE_LOOP:
-     GL_POLYGON;
-     bool has_normals
-     =
-     ( this->m_FacesNormals.size( ) > 0 )
-     &&
-     ( mode == GL_POLYGON );
-
-     glColor3fv( this->m_Color );
-     unsigned long long i = 0;
-     for( const auto& sz: this->m_Sizes )
-     {
-     glBegin( mode );
-     {
-     for( unsigned long long j = 0; j < sz; ++j )
-     {
-     if( has_normals )
-     glNormal3fv( n + this->m_FacesNormals[ ( i + j ) ] );
-     glVertex3fv( p + this->m_Faces[ ( i + j ) ] );
-     } // end for
-     }
-     glEnd( );
-     i += sz;
-     } // end for
-     }
-     else if( this->m_DrawMode == Self::SurfaceWithWireframe )
-     {
-     glColor3fv( this->m_Color );
-     unsigned long long i = 0;
-     for( const auto& sz: this->m_Sizes )
-     {
-     glBegin( GL_POLYGON );
-     {
-     for( unsigned long long j = 0; j < sz; ++j )
-     glVertex3fv( p + this->m_Faces[ ( i + j ) ] );
-     }
-     glEnd( );
-     i += sz;
-     } // end for
-
-     glColor3f(
-     1 - this->m_Color[ 0 ],
-     1 - this->m_Color[ 1 ],
-     1 - this->m_Color[ 2 ]
-     );
-     i = 0;
-     for( const auto& sz: this->m_Sizes )
-     {
-     glBegin( GL_LINE_LOOP );
-     {
-     for( unsigned long long j = 0; j < sz; ++j )
-     glVertex3fv( p + this->m_Faces[ ( i + j ) ] );
-     }
-     glEnd( );
-     i += sz;
-     } // end for
-     } // end if
-  */
+      if( n3 != 0 )
+        glNormal3fv( n + ( ( n3 - 1 ) * 3 ) );
+      glVertex3fv( p + ( ( p3 - 1 ) * 3 ) );
+    } // end for
+  }
+  glEnd( );
 }
 
 // eof - $RCSfile$

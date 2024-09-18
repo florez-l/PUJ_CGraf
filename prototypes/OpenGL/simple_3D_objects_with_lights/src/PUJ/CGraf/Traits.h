@@ -8,7 +8,7 @@ namespace PUJ
 {
   namespace CGraf
   {
-    using TNat  = unsigned short;
+    using TNat  = unsigned int;
     using TReal = float;
   } // end namespace
 } // end namespace

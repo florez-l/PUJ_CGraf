@@ -2,22 +2,6 @@
 // @author Leonardo Florez-Valencia (florez-l@javeriana.edu.co)
 // =========================================================================
 
-
-
-
-
-#include <iostream>
-
-
-
-
-
-
-
-
-
-
-
 #include <PUJ/CGraf/Mesh.h>
 
 #include <fstream>

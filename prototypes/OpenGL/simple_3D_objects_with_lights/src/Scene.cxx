@@ -45,7 +45,7 @@ init( )
 {
   glEnable( GL_LIGHTING );
   this->Superclass::init( );
-  glShadeModel( GL_FLAT );
+  glShadeModel( /* GL_FLAT */ GL_SMOOTH );
 }
 
 // -------------------------------------------------------------------------

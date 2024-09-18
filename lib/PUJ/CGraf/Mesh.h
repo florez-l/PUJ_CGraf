@@ -10,6 +10,8 @@ namespace PUJ
 {
   namespace CGraf
   {
+    class Texture;
+
     /**
      */
     class Mesh
@@ -29,7 +31,7 @@ namespace PUJ
 
     public:
       Mesh( const std::string& name );
-      virtual ~Mesh( ) = default;
+      virtual ~Mesh( );
 
       void set_drawmode_to_points( );
       void set_drawmode_to_wireframe( );
@@ -58,6 +60,8 @@ namespace PUJ
       std::vector< TNat >  m_Quads;
       std::vector< TNat >  m_Polygons;
       std::vector< TNat >  m_PolygonSizes;
+
+      PUJ::CGraf::Texture* m_Texture { nullptr };
     };
   } // end namespace
 } // end namespace

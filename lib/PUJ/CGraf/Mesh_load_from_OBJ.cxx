@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <boost/tokenizer.hpp>
+#include <PUJ/CGraf/Texture.h>
 
 namespace PUJ
 {

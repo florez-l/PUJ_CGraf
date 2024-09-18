@@ -43,9 +43,9 @@ Scene::
 void Scene::
 init( )
 {
-  // TODO: glEnable( GL_LIGHTING );
+  glEnable( GL_LIGHTING );
   this->Superclass::init( );
-  // TODO: glShadeModel( GL_FLAT );
+  glShadeModel( GL_FLAT );
 }
 
 // -------------------------------------------------------------------------
@@ -79,25 +79,28 @@ _load_scene( )
     );
 
   // Configure ambient light
+  glLightfv( GL_LIGHT0, GL_AMBIENT, this->m_AmbientLight );
+
+  TReal light_position[ 3 ];
+  light_position[ 0 ] = ( this->m_Bounds[ 1 ] - this->m_Bounds[ 0 ] ) * 1.5 + this->m_Bounds[ 0 ];
+  light_position[ 1 ] = ( this->m_Bounds[ 3 ] - this->m_Bounds[ 2 ] ) * 1.5 + this->m_Bounds[ 2 ];
+  light_position[ 2 ] = ( this->m_Bounds[ 5 ] - this->m_Bounds[ 4 ] ) * 1.5 + this->m_Bounds[ 4 ];
+  glLightfv( GL_LIGHT1, GL_POSITION, light_position );
+
+  // Enable lights
+  glEnable( GL_LIGHT0 );
+  glEnable( GL_LIGHT1 );
+  glEnable( GL_DEPTH_TEST );
+
   /* TODO
      glMaterialfv( GL_FRONT, GL_AMBIENT, this->m_AmbientLight );
-     glLightfv( GL_LIGHT0, GL_AMBIENT, this->m_AmbientLight );
 
      // A positional light
      TReal mat_ambient[ 4 ] = { 0.4, 0.4, 0.4, 1 };
-     TReal light_position[ 3 ];
-     light_position[ 0 ] = ( this->m_Bounds[ 1 ] - this->m_Bounds[ 0 ] ) * 1.5 + this->m_Bounds[ 0 ];
-     light_position[ 1 ] = ( this->m_Bounds[ 3 ] - this->m_Bounds[ 2 ] ) * 1.5 + this->m_Bounds[ 2 ];
-     light_position[ 2 ] = ( this->m_Bounds[ 5 ] - this->m_Bounds[ 4 ] ) * 1.5 + this->m_Bounds[ 4 ];
 
      glMaterialfv( GL_FRONT, GL_AMBIENT, mat_ambient );
      glMaterialfv( GL_FRONT, GL_DIFFUSE, mat_ambient );
-     glLightfv( GL_LIGHT1, GL_POSITION, light_position );
 
-     // Enable lights
-     glEnable( GL_LIGHT0 );
-     glEnable( GL_LIGHT1 );
-     glEnable( GL_DEPTH_TEST );
   */
 }
 
